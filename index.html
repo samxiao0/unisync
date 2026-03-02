@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>FolderFun 📁</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink:#FF6B9D; --yellow:#FFD93D; --blue:#6BCAFF;
+    --purple:#C77DFF; --green:#6BF0A0; --orange:#FF9F43;
+    --bg:#FFF8F0; --card:#fff; --text:#2D2D4E;
+    --shadow:0 4px 20px rgba(0,0,0,0.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,var(–pink),var(–purple));padding:20px 16px 30px;position:relative;overflow:hidden;}
+.header::before{content:’’;position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:rgba(255,255,255,0.15);border-radius:50%;}
+.header::after{content:’’;position:absolute;bottom:-20px;left:-20px;width:80px;height:80px;background:rgba(255,255,255,0.10);border-radius:50%;}
+.header-title{font-family:‘Fredoka One’,cursive;font-size:28px;color:#fff;letter-spacing:1px;position:relative;z-index:1;}
+.header-subtitle{color:rgba(255,255,255,0.85);font-size:13px;font-weight:600;margin-top:2px;position:relative;z-index:1;}
+.admin-btn{position:absolute;top:18px;right:16px;background:rgba(255,255,255,0.2);color:#fff;border:2px solid rgba(255,255,255,0.5);border-radius:20px;padding:6px 14px;font-family:‘Nunito’,sans-serif;font-size:13px;font-weight:800;cursor:pointer;z-index:1;}
+.admin-btn:active{transform:scale(0.95);}
+
+/* SCREENS */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+
+/* HOME */
+.main{padding:20px 16px 0;}
+.section-title{font-family:‘Fredoka One’,cursive;font-size:20px;margin-bottom:12px;}
+.folders-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.folder-card{background:var(–card);border-radius:20px;padding:18px 14px;box-shadow:var(–shadow);cursor:pointer;transition:transform 0.18s;position:relative;overflow:hidden;}
+.folder-card:active{transform:scale(0.95);}
+.folder-card .fi{font-size:36px;display:block;margin-bottom:8px;}
+.folder-card .fn{font-weight:800;font-size:14px;word-break:break-word;}
+.folder-card .fm{font-size:11px;color:#aaa;margin-top:4px;font-weight:600;}
+.folder-card::before{content:’’;position:absolute;top:0;left:0;right:0;height:5px;border-radius:17px 17px 0 0;}
+.col-0::before{background:var(–pink);}.col-1::before{background:var(–yellow);}.col-2::before{background:var(–blue);}
+.col-3::before{background:var(–purple);}.col-4::before{background:var(–green);}.col-5::before{background:var(–orange);}
+
+/* LOADING */
+.loading-wrap{text-align:center;padding:60px 20px;}
+.spinner{width:44px;height:44px;border:4px solid #f0e0ff;border-top:4px solid var(–purple);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-wrap p{font-weight:700;color:#aaa;font-size:14px;}
+
+/* EMPTY / ERROR */
+.msg-box{text-align:center;padding:50px 20px;}
+.msg-box .emoji{font-size:52px;display:block;margin-bottom:12px;}
+.msg-box p{font-weight:700;color:#bbb;font-size:14px;line-height:1.7;}
+.retry-btn{margin-top:14px;padding:10px 22px;background:linear-gradient(135deg,var(–pink),var(–purple));border:none;border-radius:14px;color:#fff;font-family:‘Fredoka One’,cursive;font-size:16px;cursor:pointer;}
+
+/* SCREEN HEADER */
+.screen-header{background:linear-gradient(135deg,var(–pink),var(–purple));padding:16px;display:flex;align-items:center;gap:12px;}
+.screen-back{background:rgba(255,255,255,0.2);border:none;border-radius:50%;width:38px;height:38px;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.screen-header-title{font-family:‘Fredoka One’,cursive;font-size:22px;color:#fff;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.refresh-btn{background:rgba(255,255,255,0.2);border:none;border-radius:50%;width:36px;height:36px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* FILE LIST */
+.files-list{padding:16px;display:flex;flex-direction:column;gap:10px;}
+.file-item{background:#fff;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(–shadow);cursor:pointer;transition:transform 0.15s;}
+.file-item:active{transform:scale(0.97);}
+.fti{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.fti-pdf{background:#fff0f0;}.fti-image{background:#f0f8ff;}.fti-word{background:#f0f4ff;}
+.fti-excel{background:#f0fff4;}.fti-slides{background:#fff8f0;}.fti-other{background:#f8f0ff;}
+.file-info{flex:1;min-width:0;}
+.file-name{font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.file-type-label{font-size:11px;color:#aaa;font-weight:600;margin-top:2px;}
+.file-arrow{color:#ddd;font-size:18px;}
+
+/* PREVIEW */
+.preview-header{background:#2D2D4E;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;}
+.preview-header .screen-back{background:rgba(255,255,255,0.1);}
+.preview-file-name{font-weight:800;font-size:14px;color:#fff;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.preview-frame{width:100%;height:calc(100vh - 66px);border:none;background:#1a1a2e;display:block;}
+.preview-image{width:100%;min-height:calc(100vh - 66px);object-fit:contain;background:#111;display:block;}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;backdrop-filter:blur(4px);align-items:flex-end;}
+.modal-overlay.active{display:flex;}
+.sheet{background:#fff;border-radius:28px 28px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:12px 20px 40px;animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:44px;height:5px;background:#e0e0e0;border-radius:10px;margin:0 auto 18px;}
+.sheet-title{font-family:‘Fredoka One’,cursive;font-size:22px;margin-bottom:16px;}
+.admin-label{font-size:12px;font-weight:800;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block;}
+.input-field{width:100%;padding:12px 14px;border:2.5px solid #eee;border-radius:14px;font-family:‘Nunito’,sans-serif;font-size:15px;font-weight:600;outline:none;transition:border-color 0.2s;background:var(–bg);margin-bottom:10px;}
+.input-field:focus{border-color:var(–purple);}
+.btn-primary{width:100%;padding:14px;border:none;border-radius:16px;background:linear-gradient(135deg,var(–pink),var(–purple));color:#fff;font-family:‘Fredoka One’,cursive;font-size:18px;cursor:pointer;transition:transform 0.15s;}
+.btn-primary:active{transform:scale(0.97);}
+.btn-danger{background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:#fff;border:none;border-radius:10px;padding:7px 12px;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+.divider{height:1px;background:#eee;margin:16px 0;}
+.folder-admin-list{display:flex;flex-direction:column;gap:8px;}
+.folder-admin-item{background:var(–bg);border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;}
+.folder-admin-item .info{flex:1;min-width:0;}
+.folder-admin-item .info .name{font-weight:800;font-size:14px;}
+.folder-admin-item .info .sub{font-size:11px;color:#aaa;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* ROOT FOLDER SETUP */
+.setup-box{background:linear-gradient(135deg,#f5f0ff,#fff0f8);border:2px solid var(–purple);border-radius:18px;padding:20px;margin-bottom:16px;text-align:center;}
+.setup-box .setup-emoji{font-size:40px;display:block;margin-bottom:8px;}
+.setup-box p{font-size:13px;font-weight:700;color:#888;line-height:1.7;margin-bottom:14px;}
+.help-box{background:#fffbf0;border:2px solid var(–yellow);border-radius:14px;padding:12px 14px;font-size:12px;font-weight:700;color:#888;line-height:1.8;margin-bottom:14px;}
+.help-box strong{color:var(–text);}
+.help-box code{background:#fff0d0;padding:1px 5px;border-radius:4px;font-size:11px;word-break:break-all;display:inline-block;}
+
+/* PASSWORD */
+.pw-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.pw-modal.active{display:flex;}
+.pw-box{background:#fff;border-radius:24px;padding:28px 24px;width:100%;max-width:360px;animation:popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes popIn{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+.pw-box h2{font-family:‘Fredoka One’,cursive;font-size:22px;margin-bottom:6px;}
+.pw-box p{font-size:13px;color:#999;font-weight:600;margin-bottom:18px;}
+.pw-error{color:var(–pink);font-size:13px;font-weight:700;margin-top:8px;display:none;}
+.pw-actions{display:flex;gap:10px;margin-top:14px;}
+.btn-secondary{flex:1;padding:12px;border:2.5px solid #eee;border-radius:14px;background:#fff;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:15px;cursor:pointer;color:var(–text);}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#2D2D4E;color:#fff;padding:12px 20px;border-radius:20px;font-weight:700;font-size:14px;z-index:999;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;max-width:90vw;text-align:center;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+
+</head>
+<body>
+
+<!-- HOME SCREEN -->
+
+<div class="screen active" id="screenHome">
+  <div class="header">
+    <div class="header-title">📂 FolderFun</div>
+    <div class="header-subtitle" id="homeSubtitle">Loading folders...</div>
+    <button class="admin-btn" onclick="openAdminLogin()">⚙️ Admin</button>
+  </div>
+  <div class="main">
+    <div class="section-title">📁 Folders</div>
+    <div id="homeContent">
+      <div class="loading-wrap"><div class="spinner"></div><p>Fetching folders from Drive...</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- FILE LIST SCREEN -->
+
+<div class="screen" id="screenFiles">
+  <div class="screen-header">
+    <button class="screen-back" onclick="goHome()">←</button>
+    <div class="screen-header-title" id="fileListTitle">Folder</div>
+    <button class="refresh-btn" onclick="refreshFolder()">🔄</button>
+  </div>
+  <div id="filesList"></div>
+</div>
+
+<!-- PREVIEW SCREEN -->
+
+<div class="screen" id="screenPreview">
+  <div class="preview-header">
+    <button class="screen-back" onclick="showScreen('screenFiles')">←</button>
+    <div class="preview-file-name" id="previewFileName">File</div>
+  </div>
+  <div id="previewContent"></div>
+</div>
+
+<!-- ADMIN PANEL -->
+
+<div class="modal-overlay" id="adminPanelOverlay" onclick="closeModal('adminPanelOverlay')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div class="sheet-title" style="margin-bottom:0;">🛠️ Admin Panel</div>
+      <button onclick="closeModal('adminPanelOverlay')" style="background:none;border:2px solid #eee;border-radius:12px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;color:#999;cursor:pointer;">✕</button>
+    </div>
+
+```
+<div class="help-box">
+  📌 <strong>Root Folder ID:</strong> This is the main Google Drive folder whose <strong>subfolders</strong> will appear as cards in the app.<br><br>
+  Get it from the URL:<br>
+  <code>drive.google.com/drive/folders/<strong>FOLDER_ID</strong></code>
+</div>
+
+<label class="admin-label">Root Google Drive Folder ID</label>
+<input class="input-field" id="rootFolderIdInput" placeholder="e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUq...">
+<button class="btn-primary" onclick="saveRootFolder()">💾 Save & Load Folders</button>
+
+<div class="divider"></div>
+<label class="admin-label">Current Root Folder</label>
+<div id="adminRootStatus" style="font-size:13px;font-weight:700;color:#aaa;padding:4px 0;">Not set</div>
+```
+
+  </div>
+</div>
+
+<!-- PASSWORD MODAL -->
+
+<div class="pw-modal" id="pwModal">
+  <div class="pw-box">
+    <h2>🔐 Admin Login</h2>
+    <p>Enter the admin password to continue</p>
+    <input class="input-field" id="pwInput" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')checkPassword()">
+    <div class="pw-error" id="pwError">❌ Wrong password, try again!</div>
+    <div class="pw-actions">
+      <button class="btn-secondary" onclick="closePwModal()">Cancel</button>
+      <button class="btn-primary" style="width:auto;flex:1.5;margin-top:0;" onclick="checkPassword()">Enter 🚀</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // =============================================
+  // CONFIG — your Apps Script URL is baked in!
+  // =============================================
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyk_KhxLIK9st5qIyAU0Kp_xK4gTUf4FI-CIen-cegezTmRWROQDTX2lhv00ju9i8A1pQ/exec";
+  const ADMIN_PASSWORD = "169568";
+  const COLORS = ['col-0','col-1','col-2','col-3','col-4','col-5'];
+  const FOLDER_ICONS = ['📁','📂','🗂️','📋','📚','🗃️','📦','🎯','✏️','🔬'];
+
+  let settings = JSON.parse(localStorage.getItem('folderFunSettings') || '{"rootFolderId":""}');
+  let isAdmin = false;
+  let currentFolderId = null;
+  let currentFolderName = null;
+
+  function saveSettings() { localStorage.setItem('folderFunSettings', JSON.stringify(settings)); }
+
+  // ---- HELPERS ----
+  function getIcon(t){return{pdf:'📄',image:'🖼️',word:'📝',excel:'📊',slides:'📑',other:'📎'}[t]||'📎';}
+  function getClass(t){return`fti-${t||'other'}`;}
+  function getLabel(t){return{pdf:'PDF Document',image:'Image / Photo',word:'Word Document',excel:'Excel Spreadsheet',slides:'Presentation',other:'File'}[t]||'File';}
+  function getPreviewUrl(t,id){
+    if(t==='image') return `https://lh3.googleusercontent.com/d/${id}`;
+    return `https://drive.google.com/file/d/${id}/preview`;
+  }
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+  // ---- SCREENS ----
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+  function goHome(){showScreen('screenHome'); loadFolders();}
+
+  // ---- LOAD FOLDERS FROM DRIVE ----
+  async function loadFolders() {
+    const content = document.getElementById('homeContent');
+    const subtitle = document.getElementById('homeSubtitle');
+
+    if (!settings.rootFolderId) {
+      subtitle.textContent = 'Set up a root folder in Admin';
+      content.innerHTML = `
+        <div class="msg-box">
+          <span class="emoji">⚙️</span>
+          <p>Admin needs to set the<br><strong>Root Drive Folder ID</strong><br>to show folders here.</p>
+        </div>`;
+      return;
+    }
+
+    content.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><p>Fetching folders from Drive...</p></div>`;
+    subtitle.textContent = 'Loading folders...';
+
+    try {
+      const url = `${SCRIPT_URL}?action=folders&folderId=${encodeURIComponent(settings.rootFolderId)}`;
+      const res = await fetch(url);
+      const json = await res.json();
+
+      if (json.error) throw new Error(json.error);
+
+      const folders = json.folders || [];
+      subtitle.textContent = `${folders.length} folder${folders.length!==1?'s':''} available`;
+
+      if (!folders.length) {
+        content.innerHTML = `<div class="msg-box"><span class="emoji">📭</span><p>No subfolders found in your Drive folder.<br>Add folders in Google Drive!</p></div>`;
+        return;
+      }
+
+      const grid = document.createElement('div');
+      grid.className = 'folders-grid';
+      folders.forEach((f, i) => {
+        const card = document.createElement('div');
+        card.className = `folder-card ${COLORS[i%COLORS.length]}`;
+        card.innerHTML = `<span class="fi">${FOLDER_ICONS[i%FOLDER_ICONS.length]}</span><div class="fn">${esc(f.name)}</div><div class="fm">📡 Live from Drive</div>`;
+        card.onclick = () => openFolder(f.id, f.name);
+        grid.appendChild(card);
+      });
+      content.innerHTML = '';
+      content.appendChild(grid);
+
+    } catch(err) {
+      subtitle.textContent = 'Error loading folders';
+      content.innerHTML = `
+        <div class="msg-box">
+          <span class="emoji">😕</span>
+          <p>Could not load folders.<br><small style="font-size:12px;">${esc(err.message)}</small></p>
+          <button class="retry-btn" onclick="loadFolders()">🔄 Retry</button>
+        </div>`;
+    }
+  }
+
+  // ---- OPEN FOLDER ----
+  async function openFolder(folderId, folderName) {
+    currentFolderId = folderId;
+    currentFolderName = folderName;
+    document.getElementById('fileListTitle').textContent = folderName;
+    showScreen('screenFiles');
+    renderFileListLoading();
+    await fetchAndRenderFiles();
+  }
+
+  async function refreshFolder() {
+    renderFileListLoading();
+    await fetchAndRenderFiles();
+  }
+
+  async function fetchAndRenderFiles() {
+    try {
+      const url = `${SCRIPT_URL}?action=files&folderId=${encodeURIComponent(currentFolderId)}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      if (json.error) throw new Error(json.error);
+      renderFileList(json.files || []);
+    } catch(err) {
+      document.getElementById('filesList').innerHTML = `
+        <div class="msg-box">
+          <span class="emoji">😕</span>
+          <p>Could not load files.<br><small>${esc(err.message)}</small></p>
+          <button class="retry-btn" onclick="refreshFolder()">🔄 Retry</button>
+        </div>`;
+    }
+  }
+
+  function renderFileListLoading() {
+    document.getElementById('filesList').innerHTML = `<div class="loading-wrap"><div class="spinner"></div><p>Loading files...</p></div>`;
+  }
+
+  function renderFileList(files) {
+    const list = document.getElementById('filesList');
+    if (!files.length) {
+      list.innerHTML = `<div class="msg-box"><span class="emoji">📭</span><p>This folder is empty.<br>Add files in Google Drive!</p></div>`;
+      return;
+    }
+    const wrap = document.createElement('div');
+    wrap.className = 'files-list';
+    files.forEach(file => {
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      item.innerHTML = `
+        <div class="fti ${getClass(file.type)}">${getIcon(file.type)}</div>
+        <div class="file-info">
+          <div class="file-name">${esc(file.name)}</div>
+          <div class="file-type-label">${getLabel(file.type)}</div>
+        </div>
+        <div class="file-arrow">›</div>`;
+      item.onclick = () => openFile(file);
+      wrap.appendChild(item);
+    });
+    list.innerHTML = '';
+    list.appendChild(wrap);
+  }
+
+  // ---- PREVIEW ----
+  function openFile(file) {
+    document.getElementById('previewFileName').textContent = file.name;
+    const content = document.getElementById('previewContent');
+    const url = getPreviewUrl(file.type, file.id);
+    if (file.type === 'image') {
+      content.innerHTML = `<img class="preview-image" src="${url}" alt="${esc(file.name)}"
+        onerror="this.outerHTML='<div style=\\'text-align:center;padding:60px 20px;color:#ccc;\\'><div style=\\'font-size:60px;\\'>😕</div><p style=\\'font-weight:700;margin-top:12px;\\'>Could not load image.<br>Ensure file is shared publicly.</p></div>'">`;
+    } else {
+      content.innerHTML = `<iframe class="preview-frame" src="${url}" allowfullscreen></iframe>`;
+    }
+    showScreen('screenPreview');
+  }
+
+  // ---- ADMIN ----
+  function saveRootFolder() {
+    const val = document.getElementById('rootFolderIdInput').value.trim();
+    if (!val) { showToast('⚠️ Enter a Folder ID!'); return; }
+    settings.rootFolderId = val;
+    saveSettings();
+    updateAdminStatus();
+    closeModal('adminPanelOverlay');
+    loadFolders();
+    showToast('✅ Root folder saved!');
+  }
+
+  function updateAdminStatus() {
+    const el = document.getElementById('adminRootStatus');
+    if (settings.rootFolderId) {
+      el.textContent = '✅ ' + settings.rootFolderId;
+      el.style.color = '#2ecc71';
+      document.getElementById('rootFolderIdInput').value = settings.rootFolderId;
+    } else {
+      el.textContent = 'Not set';
+      el.style.color = '#aaa';
+    }
+  }
+
+  // ---- AUTH ----
+  function openAdminLogin() {
+    if (isAdmin) { updateAdminStatus(); openModal('adminPanelOverlay'); return; }
+    document.getElementById('pwInput').value='';
+    document.getElementById('pwError').style.display='none';
+    document.getElementById('pwModal').classList.add('active');
+    setTimeout(()=>document.getElementById('pwInput').focus(),300);
+  }
+  function checkPassword() {
+    if (document.getElementById('pwInput').value === ADMIN_PASSWORD) {
+      isAdmin=true; closePwModal();
+      updateAdminStatus(); openModal('adminPanelOverlay');
+      showToast('👑 Welcome, Admin!');
+    } else {
+      document.getElementById('pwError').style.display='block';
+      document.getElementById('pwInput').value='';
+    }
+  }
+  function closePwModal(){document.getElementById('pwModal').classList.remove('active');}
+  function openModal(id){document.getElementById(id).classList.add('active');}
+  function closeModal(id){document.getElementById(id).classList.remove('active');}
+  function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2500);
+  }
+
+  // ---- INIT ----
+  loadFolders();
+</script>
+
+</body>
+</html>
